@@ -1,5 +1,11 @@
 # Project for Introduction to Machine Learning 1DL034
-Predict restaurant data from Caspeco
+## Objective
+Train a model to predict restaurant sales based on previous data from Caspeco.
+## Authors
+- Anna Hellman
+- Elis Indebetou
+- Filip von Knorring
+- Jacob Dillström
 ## Data Sources
 
 - caspecoTrainingData.csv [Provided by Caspeco](https://www.caspeco.se/)
