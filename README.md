@@ -14,4 +14,6 @@ Train a model to predict restaurant sales based on previous data from Caspeco.
 
 ## Preprocessing
 
+## Feature engineering
+
 ## Results
