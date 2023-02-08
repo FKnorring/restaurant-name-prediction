@@ -1,32 +1,36 @@
 import numpy as np
 import pandas as pd
+from typing import Tuple, Dict
 from sklearn.preprocessing import normalize
 
 # normalize sales per company
-def normalize_sales(df: pd.DataFrame):
-    min_max = {}
-    for company in [0,1,2]:
-        min_max[company] = (df[df['Company'] == company]['Sales'].min(), df[df['Company'] == company]['Sales'].max())
-
-    for company in min_max:
-        df['Sales'][df['Company'] == company] = normalize(df['Sales'][df['Company'] == company].values.reshape(1, -1), norm='max', axis=1)
-    return df, min_max
-
-def denormalize_sales(df: pd.DataFrame, min_max: dict) -> pd.DataFrame:
+def normalize_sales(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[int, float]]:
+    norms = {}
     for company in df['Company'].unique():
-        df['Sales'][df['Company'] == company] = df['Sales'][df['Company'] == company] * (min_max[company][1] - min_max[company][0]) + min_max[company][0]
+        company_df = df[df['Company'] == company]
+        company_sales = company_df['Sales'].values.reshape(-1, 1)
+        normed, norm = normalize(
+            company_sales, axis=0, norm='l2', return_norm=True)
+        df.loc[company_df.index, 'Sales'] = normed.flatten()
+        norms[company] = norm[0]
+    return df, norms
+
+
+def denormalize_sales(df: pd.DataFrame, norms: Dict[int, float]) -> pd.DataFrame:
+    for company in df['Company'].unique():
+        company_df = df[df['Company'] == company]
+        company_df.loc[:, 'Sales'] = company_df['Sales'] * norms[company]
+        df[df['Company'] == company] = company_df
     return df
         
 # fill in missing dates with 0 sales
 def fill_in_dates(df: pd.DataFrame, dates: pd.date_range) -> pd.DataFrame:
-    # if there is no date for a certain company in df, add that row with the company to df
     df['Date'] = pd.to_datetime(df['Date'])
-    for company in df['Company'].unique():
-        fill = pd.DataFrame({'Date': dates, 'Company': company, 'Sales': 0})
-        df = pd.concat([df, fill], ignore_index=True)
-        df = df.drop_duplicates(subset=['Date', 'Company'], keep='first')
-        
-    return df.sort_values(by=['Date', 'Company']).reset_index().drop(columns=['index'])
+    index = pd.MultiIndex.from_product(
+        [dates, df['Company'].unique()], names=['Date', 'Company'])
+    pivot = df.set_index(['Date', 'Company']).reindex(
+        index, fill_value=0).reset_index()
+    return pivot.sort_values(by=['Date', 'Company'])
 
 # add day week month year weekday, weekend (friday, saturday) from dates
 def add_date_features(df: pd.DataFrame) -> pd.DataFrame:
