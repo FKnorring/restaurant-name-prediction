@@ -1,6 +1,6 @@
 from sales_processing import *
 from holiday_processing import *
-
+import pandas as pd
 """
 Preprocesses the data
 Args:
@@ -25,7 +25,7 @@ def preprocess(df: pd.DataFrame, fill_dates=True, norm_by=None, drop_cols=None, 
                 df = normalize_sales_year(df)
             case _:
                 df, norms = normalize_sales(df)
-    df = add_holidays(df)
+    df = add_holidays(df, pd.read_csv('data/swedish_holidays.csv'))
     df = kung_i_baren(df)
     df = find_closed_patterns(df)
     df = find_closed_ranges(df)
