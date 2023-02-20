@@ -15,7 +15,7 @@ Returns:
 def preprocess(df: pd.DataFrame, fill_dates=True, norm_by=None, drop_cols=None, categorical_features=None) -> pd.DataFrame:
     norms = None
     if fill_dates:
-        df = fill_in_dates(df)
+        df = fill_in_dates(df, pd.date_range('2020-01-01', '2023-01-04'))
     df = add_date_features(df)
     if norm_by is not None:
         match norm_by:
