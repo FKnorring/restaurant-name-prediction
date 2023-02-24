@@ -1,0 +1,50 @@
+batch_size: 16
+context_size: 10
+decoder_hidden_size: 512
+decoder_layers: 2
+drop_last_loader: false
+early_stop_patience_steps: -1
+encoder_bias: true
+encoder_dropout: 0.0
+encoder_hidden_size: 100
+encoder_n_layers: 3
+futr_exog_list: null
+h: 249
+hist_exog_list: null
+input_size: 15936
+learning_rate: 0.03176884549676541
+loss: &id001 !!python/object:__main__.WMAPE
+  _backward_hooks: !!python/object/apply:collections.OrderedDict
+  - []
+  _buffers: !!python/object/apply:collections.OrderedDict
+  - []
+  _forward_hooks: !!python/object/apply:collections.OrderedDict
+  - []
+  _forward_pre_hooks: !!python/object/apply:collections.OrderedDict
+  - []
+  _is_full_backward_hook: null
+  _load_state_dict_post_hooks: !!python/object/apply:collections.OrderedDict
+  - []
+  _load_state_dict_pre_hooks: !!python/object/apply:collections.OrderedDict
+  - []
+  _modules: !!python/object/apply:collections.OrderedDict
+  - []
+  _non_persistent_buffers_set: !!set {}
+  _parameters: !!python/object/apply:collections.OrderedDict
+  - []
+  _state_dict_hooks: !!python/object/apply:collections.OrderedDict
+  - []
+  is_distribution_output: false
+  output_names:
+  - ''
+  outputsize_multiplier: 1
+  training: false
+max_steps: 500
+num_lr_decays: -1
+num_workers_loader: 0
+random_seed: 1
+scaler_type: robust
+stat_exog_list: null
+val_check_steps: 100
+valid_batch_size: null
+valid_loss: *id001

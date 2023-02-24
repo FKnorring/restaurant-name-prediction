@@ -31,6 +31,11 @@ def normalize_sales_month(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[int, flo
     norms = {}
     for company in df['Company'].unique():
         company_df = df[df['Company'] == company]
+        company_sales = company_df[company_df['Date'] > "2022-09-01"]['Sales'].values.reshape(-1, 1)
+        _, norm = normalize(company_sales, axis=0, norm='l2', return_norm=True)
+        norms[company] = norm
+    for company in df['Company'].unique():
+        company_df = df[df['Company'] == company]
         for year in company_df['Year'].unique():
             for month in company_df['Month'].unique():
                 
@@ -41,12 +46,12 @@ def normalize_sales_month(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[int, flo
                 if year == 3 and month == 1:
                     # calculate norm from year 2 and month 12 and apply to current
                     _, norm = normalize(company_df[(company_df['Year'] == 2) & (company_df['Month'] == 12)]['Sales'].values.reshape(-1, 1), axis=0, norm='l2', return_norm=True)
-                    norms[company] = norm
                     normed = company_month_df['Sales'].values.reshape(-1, 1) / norm
                 else:
                     normed = normalize(company_month_sales, axis=0, norm='l2')
                 df.loc[company_month_df.index, 'Sales'] = normed.flatten()
-    # for last month, normzae with previous month
+    #get norm for each company for 2022-09-01 to 2023-01-04
+    print(norms)
     return df, norms
 
 #normalize sales per year
