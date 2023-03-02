@@ -27,12 +27,12 @@ def preprocess(df: pd.DataFrame, fill_dates=True, norm_by=None, drop_cols=None, 
                 df, norms = normalize_sales(df)
     df = add_holidays(df, pd.read_csv('data/swedish_holidays.csv'))
     df = kung_i_baren(df)
-    df = find_closed_patterns(df)
+    df, closed_days = find_closed_patterns(df, verbose=True)
     df = find_closed_ranges(df)
     if drop_cols is not None:
         df = df.drop(columns=drop_cols)
     if categorical_features is not None:
         df = one_hot_encode_categorical(df, categorical_features)
     if norms is not None:
-        return df, norms
-    return df
+        return df, norms, closed_days
+    return df, closed_days

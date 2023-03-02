@@ -118,6 +118,7 @@ def add_closed_days(df: pd.DataFrame) -> pd.DataFrame:
 # find patterns with day and month where companies have closed
 def find_closed_patterns(df: pd.DataFrame, verbose=False) -> pd.DataFrame:
     df['Closed'] = 0
+    closed_days = {i:{"md":[], "wd":[]} for i in df['Company'].unique()}
     for company in df['Company'].unique():
         company_df = df[df['Company'] == company]
         for day in company_df['Day'].unique():
@@ -125,15 +126,28 @@ def find_closed_patterns(df: pd.DataFrame, verbose=False) -> pd.DataFrame:
                 company_day_month_df = company_df[(company_df['Day'] == day) & (company_df['Month'] == month)]
                 #sum days the dataframe['Sales'] == 0
                 times_closed = (company_day_month_df['Sales'] == 0).sum()
-                if times_closed > 1:
-                    if verbose: print(f'Company {company} closed on {day}/{month}, {times_closed} times')
+                if times_closed > 2:
+                    if verbose: print(f'Company {company} closed on month/day {month}/{day}, {times_closed} times')
+                    closed_days[company]["md"].append((day, month))
                     # add closed to all days/month in df
                     df.loc[(df['Company'] == company) & (df['Day'] == day) & (df['Month'] == month), 'Closed'] = 1
-    return df
+        for weekday in company_df['Weekday'].unique():
+            for week in company_df['Week'].unique():
+                company_weekday_week_df = company_df[(company_df['Weekday'] == weekday) & (company_df['Week'] == week)]
+                #sum days the dataframe['Sales'] == 0
+                times_closed = (company_weekday_week_df['Sales'] == 0).sum()
+                if times_closed > 2:
+                    if verbose: print(f'Company {company} closed on week/weekday {weekday}/{week}, {times_closed} times')
+                    closed_days[company]["wd"].append((weekday, week))
+                    # add closed to all days/month in df
+                    df.loc[(df['Company'] == company) & (df['Weekday'] == weekday) & (df['Week'] == week), 'Closed'] = 1
+                
+    return df, closed_days
 
 # find date ranges where companies have closed
 def find_closed_ranges(df: pd.DataFrame, verbose=False) -> pd.DataFrame:
     # print the found ranges
+    df['Inactive'] = 0
     for company in df['Company'].unique():
         company_df = df[df['Company'] == company]
         # find ranges where sales are 0
@@ -145,7 +159,7 @@ def find_closed_ranges(df: pd.DataFrame, verbose=False) -> pd.DataFrame:
                 if len(ranges) > 3:
                     if verbose: print(f'Company {company} closed between {ranges[0]} and {ranges[-1]}')
                     # set closed = 1 for all dates in range
-                    df.loc[(df['Company'] == company) & (df['Date'] >= ranges[0]) & (df['Date'] <= ranges[-1]), 'Closed'] = 1
+                    df.loc[(df['Company'] == company) & (df['Date'] >= ranges[0]) & (df['Date'] <= ranges[-1]), 'Inactive'] = 1
                 ranges = []
     return df
 
